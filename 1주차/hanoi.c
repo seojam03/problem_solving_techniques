@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 int seojam = 0, check = 0, from_idx = 0, to_idx = 0;
 int from_print[1023] = { 0 };
@@ -312,6 +313,8 @@ void hanoi(int num, S* from, S* tmp, S* to, int now, int next, int* now_where, i
 }
 
 int main(void) {
+    clock_t start = clock();
+
     int num, count;
     scanf("%d", &num);
     if (num <= 10) {
@@ -397,6 +400,10 @@ int main(void) {
     free(third_final.lss);
     free(set_where);
     free(final_where);
+
+    clock_t end = clock();
+    double duration = (double)(end - start) / CLOCKS_PER_SEC;
+    printf("실행 시간: %.3f초\n", duration);
 
     return 0;
 }
