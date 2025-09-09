@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #define _CRT_SECURE_NO_WARNINGS
 
-int seojam=0;
-int check=0;
+int seojam=0, check=0, from_idx = 0, to_idx = 0;
+int from_print[1023] = {0};
+int to_print[1023] = {0};
 
 void set(int *lss, int count, int num){
   for(int i=0 ; i < count ; i++){
@@ -24,6 +25,7 @@ void print_tower(int *lss, int num){
 typedef struct{
   int *lss;
   int number;
+  int is_this;
 } S;
 
 int isSame(int num, S firstA, S secondA, S thirdA, S firstB, S secondB, S thirdB){
@@ -39,138 +41,256 @@ int isSame(int num, S firstA, S secondA, S thirdA, S firstB, S secondB, S thirdB
   return 1;
 }
 
-void orignal_hanoi(int num, S *from, S *tmp, S *to){
-    if(num == 1){
-        from->lss[--from->number] = 0;
-        to->lss[to->number++] = 1;
-        seojam++;
-    } else {
-        orignal_hanoi(num - 1, from, to, tmp);
-        from->lss[--from->number] = 0;
-        to->lss[to->number++] = num;
-        seojam++;
-        orignal_hanoi(num - 1, tmp, from, to);
+void orignal_hanoi(int num, S *from, S *tmp, S *to, int check){
+  if(num == 1){
+    from->lss[--from->number] = 0;
+    to->lss[to->number++] = 1;
+    seojam++;
+    if(check){
+      if(from->is_this == 1 && to->is_this == 2){
+        from_print[from_idx++] = 1;
+        to_print[to_idx++] = 2;
+        // printf("1 2 \n");
+      } else if(from->is_this == 1){
+        from_print[from_idx++] = 1;
+        to_print[to_idx++] = 3;
+        // printf("1 3 \n");
+      } else if(from->is_this == 2 && to->is_this == 1){
+        from_print[from_idx++] = 2;
+        to_print[to_idx++] = 1;
+        // printf("2 1 \n");
+      } else if(from->is_this == 2){
+        from_print[from_idx++] = 2;
+        to_print[to_idx++] = 3;
+        // printf("2 3 \n");
+      } else if(from->is_this == 3 && to->is_this == 1){
+        from_print[from_idx++] = 3;
+        to_print[to_idx++] = 1;
+        // printf("3 1 \n");
+      } else{
+        from_print[from_idx++] = 3;
+        to_print[to_idx++] = 2;
+        // printf("3 2 \n");
+      }
     }
+  } else {
+    orignal_hanoi(num - 1, from, to, tmp, check);
+    from->lss[--from->number] = 0;
+    to->lss[to->number++] = num;
+    seojam++;
+    if(check){
+      if(from->is_this == 1 && to->is_this == 2){
+        from_print[from_idx++] = 1;
+        to_print[to_idx++] = 2;
+        // printf("1 2 \n");
+      } else if(from->is_this == 1){
+        from_print[from_idx++] = 1;
+        to_print[to_idx++] = 3;
+        // printf("1 3 \n");
+      } else if(from->is_this == 2 && to->is_this == 1){
+        from_print[from_idx++] = 2;
+        to_print[to_idx++] = 1;
+        // printf("2 1 \n");
+      } else if(from->is_this == 2){
+        from_print[from_idx++] = 2;
+        to_print[to_idx++] = 3;
+        // printf("2 3 \n");
+      } else if(from->is_this == 3 && to->is_this == 1){
+        from_print[from_idx++] = 3;
+        to_print[to_idx++] = 1;
+        // printf("3 1 \n");
+      } else{
+        from_print[from_idx++] = 3;
+        to_print[to_idx++] = 2;
+        // printf("3 2 \n");
+      }
+    }
+    orignal_hanoi(num - 1, tmp, from, to, check);
+  }
 }
 
-void hanoi(int num, S *from, S *tmp, S *to, int now, int next, int *now_where, int max){
-    if(num == 1){
-        if(now != next){
-            if(now == 1 && next == 2){
-                from->lss[--from->number] = 0;
-                tmp->lss[tmp->number++] = 1;
-                now_where[num-1] = 2;
-                seojam++;
-            } else if(now == 1){
-                from->lss[--from->number] = 0;
-                to->lss[to->number++] = 1;
-                now_where[num-1] = 3;
-                seojam++;
-            } else if(now == 2 && next == 1){
-                tmp->lss[--tmp->number] = 0;
-                from->lss[from->number++] = 1;
-                now_where[num-1] = 1;
-                seojam++;
-            } else if(now == 2){
-                tmp->lss[--tmp->number] = 0;
-                to->lss[to->number++] = 1;
-                now_where[num-1] = 3;
-                seojam++;
-            } else if(now == 3 && next == 1){
-                to->lss[--to->number] = 0;
-                from->lss[from->number++] = 1;
-                now_where[num-1] = 1;
-                seojam++;
-            } else if(now == 3){
-                to->lss[--to->number] = 0;
-                tmp->lss[tmp->number++] = 1;
-                now_where[num-1] = 2;
-                seojam++;
-            }
+void hanoi(int num, S *from, S *tmp, S *to, int now, int next, int *now_where, int max, int check){
+  if(num == 1){
+    if(now != next){
+      if(now == 1 && next == 2){
+        from->lss[--from->number] = 0;
+        tmp->lss[tmp->number++] = 1;
+        now_where[num-1] = 2;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 1;
+          to_print[to_idx++] = 2;
+          // printf("1 2 \n");
         }
-    // 1이 아닐 때 순환
-    } else {
-        if(now != next){
-            if(now == 1 && next == 2){
-                hanoi(num-1, from, tmp, to, now_where[num-2], 3, now_where, max);
-    
-                from->lss[--from->number] = 0;
-                tmp->lss[tmp->number++] = num;
-                now_where[num-1] = 2;
-                seojam++;
-                
-                if(num-1 != max-1) orignal_hanoi(num-1, to, from, tmp);
-            } else if(now == 1){
-              // 다음 수를 2으로 이동
-                hanoi(num-1, from, tmp, to, now_where[num-2], 2, now_where, max);
-    
-                from->lss[--from->number] = 0;
-                to->lss[to->number++] = num;
-                now_where[num-1] = 3;
-                seojam++;
-    
-                if(num-1 != max-1) orignal_hanoi(num-1, tmp, from, to);
-            } else if(now == 2 && next == 1){
-              // 다음 수를 3으로 이동
-                hanoi(num-1, from, tmp, to, now_where[num-2], 3, now_where, max);
-    
-                tmp->lss[--tmp->number] = 0;
-                from->lss[from->number++] = num;
-                now_where[num-1] = 1;
-                seojam++;
-    
-                if(num-1 != max-1) orignal_hanoi(num-1, to, tmp, from);
-            } else if(now == 2){
-              // 다음 수를 1로 이동
-                hanoi(num-1, from, tmp, to, now_where[num-2], 1, now_where, max);
-    
-                tmp->lss[--tmp->number] = 0;
-                to->lss[to->number++] = num;
-                now_where[num-1] = 3;
-                seojam++;
-    
-                if(num-1 != max-1) orignal_hanoi(num-1, from, tmp, to);
-            } else if(now == 3 && next == 1){
-              // 다음 수를 2로 이동
-                hanoi(num-1, from, tmp, to, now_where[num-2], 2, now_where, max);
-    
-                to->lss[--to->number] = 0;
-                from->lss[from->number++] = num;
-                now_where[num-1] = 1;
-                seojam++;
-    
-                if(num-1 != max-1) orignal_hanoi(num-1, tmp, to, from);
-            } else if(now == 3){
-              // 다음 수를 1로 이동
-                hanoi(num-1, from, tmp, to, now_where[num-2], 1, now_where, max);
-            
-                to->lss[--to->number] = 0;
-                tmp->lss[tmp->number++] = num;
-                now_where[num-1] = 2;
-                seojam++;
-    
-                if(num-1 != max-1) orignal_hanoi(num-1, from, to, tmp);
-            }
-        } else {
-            if(now == 1){
-              // 다음 수를 1로 이동
-                if(num-1 != max-1) hanoi(num-1, from, tmp, to, now_where[num-2], 1, now_where, max);
-    
-            } else if(now == 2){
-              // 다음 수를 2로 이동
-                if(num-1 != max-1) hanoi(num-1, from, tmp, to, now_where[num-2], 2, now_where, max);
-    
-            } else if(now == 3){
-              // 다음 수를 3으로 이동
-                if(num-1 != max-1) hanoi(num-1, from, tmp, to, now_where[num-2], 3, now_where, max);
-            }
+      } else if(now == 1){
+        from->lss[--from->number] = 0;
+        to->lss[to->number++] = 1;
+        now_where[num-1] = 3;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 1;
+          to_print[to_idx++] = 3;
+          // printf("1 3 \n");
         }
+      } else if(now == 2 && next == 1){
+        tmp->lss[--tmp->number] = 0;
+        from->lss[from->number++] = 1;
+        now_where[num-1] = 1;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 2;
+          to_print[to_idx++] = 1;
+          // printf("2 1 \n");
+        }
+      } else if(now == 2){
+          tmp->lss[--tmp->number] = 0;
+          to->lss[to->number++] = 1;
+          now_where[num-1] = 3;
+          seojam++;
+          if(check){
+            from_print[from_idx++] = 2;
+            to_print[to_idx++] = 3;
+            // printf("2 3 \n");
+          }
+      } else if(now == 3 && next == 1){
+          to->lss[--to->number] = 0;
+          from->lss[from->number++] = 1;
+          now_where[num-1] = 1;
+          seojam++;
+          if(check){
+            from_print[from_idx++] = 3;
+            to_print[to_idx++] = 1;
+            // printf("3 1 \n");
+          }
+      } else if(now == 3){
+        to->lss[--to->number] = 0;
+        tmp->lss[tmp->number++] = 1;
+        now_where[num-1] = 2;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 3;
+          to_print[to_idx++] = 2;
+          // printf("3 2 \n");
+        }
+      }
     }
+    // 1이 아닐 때 순환
+  } else {
+    if(now != next){
+      if(now == 1 && next == 2){
+        hanoi(num-1, from, tmp, to, now_where[num-2], 3, now_where, max, check);
+    
+        from->lss[--from->number] = 0;
+        tmp->lss[tmp->number++] = num;
+        now_where[num-1] = 2;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 1;
+          to_print[to_idx++] = 2;
+          // printf("1 2 \n");
+        }
+                
+        if(num-1 != max-1) orignal_hanoi(num-1, to, from, tmp, check);
+      } else if(now == 1){
+        // 다음 수를 2으로 이동
+        hanoi(num-1, from, tmp, to, now_where[num-2], 2, now_where, max, check);
+
+        from->lss[--from->number] = 0;
+        to->lss[to->number++] = num;
+        now_where[num-1] = 3;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 1;
+          to_print[to_idx++] = 3;
+          // printf("1 3 \n");
+        }
+
+        if(num-1 != max-1) orignal_hanoi(num-1, tmp, from, to, check);
+      } else if(now == 2 && next == 1){
+        // 다음 수를 3으로 이동
+        hanoi(num-1, from, tmp, to, now_where[num-2], 3, now_where, max, check);
+    
+        tmp->lss[--tmp->number] = 0;
+        from->lss[from->number++] = num;
+        now_where[num-1] = 1;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 2;
+          to_print[to_idx++] = 1;
+          // printf("2 1 \n");
+        }
+    
+        if(num-1 != max-1) orignal_hanoi(num-1, to, tmp, from, check);
+      } else if(now == 2){
+        // 다음 수를 1로 이동
+        hanoi(num-1, from, tmp, to, now_where[num-2], 1, now_where, max, check);
+    
+        tmp->lss[--tmp->number] = 0;
+        to->lss[to->number++] = num;
+        now_where[num-1] = 3;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 2;
+          to_print[to_idx++] = 3;
+          // printf("2 3 \n");
+        }
+    
+        if(num-1 != max-1) orignal_hanoi(num-1, from, tmp, to, check);
+      } else if(now == 3 && next == 1){
+        // 다음 수를 2로 이동
+        hanoi(num-1, from, tmp, to, now_where[num-2], 2, now_where, max, check);
+        
+        to->lss[--to->number] = 0;
+        from->lss[from->number++] = num;
+        now_where[num-1] = 1;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 3;
+          to_print[to_idx++] = 1;
+          // printf("3 1 \n");
+        }
+    
+        if(num-1 != max-1) orignal_hanoi(num-1, tmp, to, from, check);
+      } else if(now == 3){
+        // 다음 수를 1로 이동
+        hanoi(num-1, from, tmp, to, now_where[num-2], 1, now_where, max, check);
+
+        to->lss[--to->number] = 0;
+        tmp->lss[tmp->number++] = num;
+        now_where[num-1] = 2;
+        seojam++;
+        if(check){
+          from_print[from_idx++] = 3;
+          to_print[to_idx++] = 2;
+          // printf("3 2 \n");
+        }
+    
+        if(num-1 != max-1) orignal_hanoi(num-1, from, to, tmp, check);
+      }
+    } else {
+      if(now == 1){
+        // 다음 수를 1로 이동
+        if(num-1 != max-1) hanoi(num-1, from, tmp, to, now_where[num-2], 1, now_where, max, check);
+    
+      } else if(now == 2){
+        // 다음 수를 2로 이동
+        if(num-1 != max-1) hanoi(num-1, from, tmp, to, now_where[num-2], 2, now_where, max, check);
+    
+      } else if(now == 3){
+        // 다음 수를 3으로 이동
+        if(num-1 != max-1) hanoi(num-1, from, tmp, to, now_where[num-2], 3, now_where, max, check);
+      }
+    }
+  }
 }
 
 int main(void){
     int num, count;
     scanf("%d", &num);
+    if(num <= 10){
+      check = 1;
+    }
+    
     S first, second, third, first_final, second_final, third_final;
     first.lss = (int *)malloc(sizeof(int) * num);
     second.lss = (int *)malloc(sizeof(int) * num);
@@ -183,14 +303,18 @@ int main(void){
     scanf("%d",&count);
     first.number = count;
     set(first.lss,count,num);
+    first.is_this = 1;
 
     scanf("%d",&count);
     second.number = count;
     set(second.lss,count,num);
+    second.is_this = 2;
 
     scanf("%d",&count);
     third.number = count;
     set(third.lss,count,num);
+    third.is_this = 3;
+
     // 최종 상태
     scanf("%d",&count);
     first_final.number = count;
@@ -217,7 +341,6 @@ int main(void){
         final_where[third_final.lss[i] - 1] = 3;
     }
 
-
     for(int i=num ; i>=1 ; i--){
         for(int i=0 ; i<first.number ; i++){
             set_where[first.lss[i] - 1] = 1;
@@ -228,34 +351,15 @@ int main(void){
         for(int i=0 ; i<third.number ; i++){
             set_where[third.lss[i] - 1] = 3;
         }
-        hanoi(i, &first, &second, &third, set_where[i-1], final_where[i-1], set_where, i);
+        hanoi(i, &first, &second, &third, set_where[i-1], final_where[i-1], set_where, i, check);
     }
 
     printf("%d \n",seojam);
-
-    // hanoi(num, &first, &second, &third, set_where[num-1], final_where[num-1], set_where, num);
-    
-    // print_tower(first.lss,num);
-    // printf("%d \n",first.number);
-    // print_tower(second.lss,num);
-    // printf("%d \n",second.number);
-    // print_tower(third.lss,num);
-    // printf("%d \n",third.number);
-
-    // printf("---------------\n");
-    // for(int i=0 ; i<num ; i++){
-    //     printf("%d %d\n",set_where[i],final_where[i]);
-    // }
-
-    // hanoi(num-1, &first, &second, &third, set_where[num-2], final_where[num-2], set_where, num-1);
-    
-    // print_tower(first.lss,num);
-    // printf("%d \n",first.number);
-    // print_tower(second.lss,num);
-    // printf("%d \n",second.number);
-    // print_tower(third.lss,num);
-    // printf("%d \n",third.number);
-
+    if(check){
+      for(int i=0 ; from_print[i] != 0 ; i++){
+        printf("%d %d \n",from_print[i],to_print[i]);
+      }
+    }
 
     free(first.lss);
     free(second.lss);
@@ -263,5 +367,6 @@ int main(void){
     free(first_final.lss);
     free(second_final.lss);
     free(third_final.lss);
+
     return 0;
 }
