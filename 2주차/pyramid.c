@@ -25,11 +25,11 @@ int smaller(int a, int b, int c){
     }
 }
 
-int recursive_pyramid(int num, int *lss, int index){
-    if(num == 0) return num;
+int recursive_pyramid(int num, int *lss, int index, int max){
+    if(num == 0 || max>=(num*2+1)) return num;
     for(int i=1 ; i<=num ; i++){
-        if((lss[index - i] < num - i + 1) || (lss[index + i] < num - i + 1)){
-            return recursive_pyramid(num - 1, lss, index);
+        if((lss[index - i] < num - i + 1) || (lss[index + i] < num - i + 1) || (lss[index - num + i - 1] < i) || (lss[index + num - i + 1] < i)){
+            return recursive_pyramid(num - 1, lss, index, max);
         }
     }
     return num;
@@ -51,7 +51,7 @@ int main(void){
         limit = smaller(lss[i].index*2+1, (num - lss[i].index)*2-1, lss[i].value*2-1);
         if(limit <= max_len) continue;
         
-        input_it = recursive_pyramid(limit/2, origin_lss, lss[i].index)*2 + 1;
+        input_it = recursive_pyramid(limit/2, origin_lss, lss[i].index, max_len)*2 + 1;
         if(input_it > max_len){
             max_len = input_it;
         }
