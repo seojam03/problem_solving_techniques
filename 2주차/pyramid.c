@@ -13,14 +13,30 @@ int compare(const void *a, const void *b){
     return num2 - num1;
 }
 
-int smaller(int a, int b){
-    if(a<b){
+int smaller(int a, int b, int c){
+    if(a<b && a<c){
         return a;
-    } else return b;
+    } else if(a<b){
+        return c;
+    } else if(b>c){
+        return c;
+    } else {
+        return b;
+    }
+}
+
+int recursive_pyramid(int num, int *lss, int index){
+    if(num == 0) return num;
+    for(int i=1 ; i<=num ; i++){
+        if((lss[index - i] < num - i + 1) || (lss[index + i] < num - i + 1)){
+            return recursive_pyramid(num - 1, lss, index);
+        }
+    }
+    return num;
 }
 
 int main(void){
-    int num, max_len, limit;
+    int num, max_len=0, limit, input_it;
     scanf("%d",&num);
     int *origin_lss = (int *)malloc(sizeof(int)*num);
     S *lss = (S *)malloc(sizeof(S)*num);
@@ -32,19 +48,15 @@ int main(void){
     qsort(lss,num,sizeof(S),compare);
     
     for(int i=0 ; max_len < lss[i].value * 2 - 1 ; i++){
-        limit = smaller(lss[i].index*2-1, (num - lss[i].index)*2-1);
+        limit = smaller(lss[i].index*2+1, (num - lss[i].index)*2-1, lss[i].value*2-1);
         if(limit <= max_len) continue;
-        limit = smaller(limit, lss[i].value*2-1);
         
+        input_it = recursive_pyramid(limit/2, origin_lss, lss[i].index)*2 + 1;
+        if(input_it > max_len){
+            max_len = input_it;
+        }
     }
-    
-
-
-    // 출력
-    // for(int i=0 ; i<num ; i++){
-    //     printf("%d %d \n",lss[i].value, lss[i].index);
-    // }
-
+    printf("%d",max_len);
 
     free(lss);
     free(origin_lss);
